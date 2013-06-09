@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+
+require 'profit'
+
+Profit::Server.new.run

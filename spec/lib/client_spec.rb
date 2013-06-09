@@ -2,18 +2,10 @@ require 'spec_helper'
 
 describe Profit::Client do
 
-  let!(:redis) { Redis.new(host: "127.0.0.1", port: 6379) }
-  let(:client) { Profit::Client.new(@server.ctx) }
-
-  before(:all) do
-    @server = Profit::Server.new
-    @server_thread = Thread.new { @server.run }
-  end
-
-  after(:all) do
-    @server.shutdown!
-    @server_thread.join(0.1)
-  end
+  let!(:redis)         { Redis.new(host: "127.0.0.1", port: 6379) }
+  let!(:client)        { Profit::Client.new(server.ctx) }
+  let!(:server)        { TestServer.server }
+  let!(:server_thread) { TestServer.server_thread }
 
   after do
     redis.del("some_foo_measurement")
@@ -27,7 +19,7 @@ describe Profit::Client do
     sleep 1
     client.stop("some_foo_measurement")
 
-    @server_thread.join(0.1)
+    server_thread.join(0.1)
 
     metrics = redis.lrange("some_foo_measurement", 0, -1)
     metric = JSON.parse(metrics.first)
@@ -107,7 +99,7 @@ describe Profit::Client do
       expect(client.pending.keys.count).to eq 1
       client.stop("m_1")
 
-      @server_thread.join(0.1)
+      server_thread.join(0.1)
 
       first_measurement_list = redis.lrange("m_1", 0, -1)
       second_measurement_list = redis.lrange("m_2", 0, -1)
@@ -127,7 +119,7 @@ describe Profit::Client do
       stop_line = __LINE__
       client.stop("m_1")
 
-      @server_thread.join(0.1)
+      server_thread.join(0.1)
 
       measurements = redis.lrange("m_1", 0, -1)
       metric = JSON.parse(measurements[0])

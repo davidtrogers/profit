@@ -2,14 +2,15 @@ require 'spec_helper'
 
 describe Profit::Server do
 
-  let!(:redis) { Redis.new(host: "127.0.0.1", port: 6379) }
+  let!(:redis)         { Redis.new(host: "127.0.0.1", port: 6379) }
+  let!(:server)        { TestServer.server }
+  let!(:server_thread) { TestServer.server_thread }
 
   after do
     redis.del("some_slow_piece_of_code")
   end
 
   it "stores metrics messages" do
-    server = Profit::Server.new
     pusher = server.ctx.connect(:PUSH, "tcp://127.0.0.1:5556")
 
     pusher.send({ recorded_time: (now = Time.now),
@@ -19,8 +20,7 @@ describe Profit::Server do
                   end_line: 42,
                   start_file: "/foo/bar/baz.rb",
                   end_file: "/foo/bar/biz.rb" }.to_json)
-    server.shutdown! # kill the server after first message
-    server.run
+    server_thread.join(0.1)
 
     list = redis.lrange("some_slow_piece_of_code", 0, -1)
     expect(list.count).to eq 1
@@ -34,17 +34,4 @@ describe Profit::Server do
     expect(metric["end_file"]).to eq "/foo/bar/biz.rb"
     expect(metric["recorded_time"]).to eq now.to_s
   end
-
-  it "kills the zmq context with a shutdown hook" do
-    server = Profit::Server.new
-    pusher = server.ctx.connect(:PUSH, "tcp://127.0.0.1:5556")
-    pusher.send("") # need to send one message to break out of socket
-    server.shutdown!
-    server.run
-
-    expect { server.ctx.destroy }.to raise_error(ZMQ::Error)
-  end
-
-  it "traps INT and shuts down gracefully"
-  it "stores no more than 5_000 metrics in the list"
 end

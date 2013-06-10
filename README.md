@@ -14,9 +14,10 @@ client.stop("some_suspect_code")
 ```
 
 Here's the server
-``` ruby
-server = Profit::Server.new
-server.run
+``` shell
+$ profit_server --redis-address 127.0.0.1:6379 \
+                --zmq-address tcp://*:5556 \
+                --pool-size 10
 ```
 
 And if you looked in Redis

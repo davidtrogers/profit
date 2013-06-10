@@ -1,5 +1,27 @@
 #!/usr/bin/env ruby
 
+require 'optparse'
 require 'profit'
 
-Profit::Server.new.run
+options = {}
+OptionParser.new { |opts|
+  opts.banner = "Usage: profit_server [options]"
+
+  opts.on("-r", "--redis-address [STRING]", String,
+          "Redis Address (127.0.0.1:6379)") do |ra|
+    options[:redis_address] = ra.split(":").first
+    options[:redis_port]    = ra.split(":").last.to_i
+  end
+
+  opts.on("-z", "--zmq-address [STRING]", String,
+          "ZMQ Address (tcp://*:5556)") do |za|
+    options[:zmq_address] = za
+  end
+
+  opts.on("-n", "--pool-size [DECIMAL]", OptionParser::DecimalInteger,
+          "Redis client pool size (10)") do |n|
+    options[:pool_size] = n
+  end
+}.parse!
+
+Profit::Server.new(options).run

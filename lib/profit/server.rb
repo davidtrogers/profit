@@ -4,7 +4,12 @@ module Profit
 
     attr_reader :ctx
 
-    def initialize
+    def initialize(options = {})
+      @options = {}
+      @options[:redis_address] = options[:redis_address] || "127.0.0.1"
+      @options[:redis_port]    = options[:redis_port]    || 6379
+      @options[:zmq_address]   = options[:zmq_address]   || "tcp://*:5556"
+      @options[:pool_size]     = options[:pool_size]     || 10
       @ctx = ZMQ::Context.new
     end
 
@@ -17,13 +22,15 @@ module Profit
 
     def run
       EM.run do
-
         @redis_pool = EM::Pool.new
-        spawn = lambda { @redis_pool.add Redis.new(host: "127.0.0.1", port: 6379) }
+        spawn = lambda do
+          @redis_pool.add Redis.new(host: @options[:redis_address],
+                                    port: @options[:redis_port])
+        end
         @redis_pool.on_error { |conn| spawn[] }
-        10.times { spawn[] }
+        @options[:pool_size].times { spawn[] }
 
-        @puller = @ctx.bind(:PULL, "tcp://127.0.0.1:5556")
+        @puller = @ctx.bind(:PULL, @options[:zmq_address])
 
         # gives us a graceful exit
         setup_trap_int

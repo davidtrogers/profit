@@ -14,7 +14,8 @@ module Profit
     def run
       return succeed("Starting") if @json.empty?
       message_hash = JSON.parse(@json)
-      key = message_hash.delete("metric_type")
+      metric_type = message_hash.delete("metric_type")
+      key = "profit:metric:#{metric_type}"
       response = @conn.rpush key, message_hash.to_json
       if response == "OK"
         succeed response

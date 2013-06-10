@@ -7,7 +7,7 @@ describe Profit::Server do
   let!(:server_thread) { TestServer.server_thread }
 
   after do
-    redis.del("some_slow_piece_of_code")
+    redis.del("profit:metric:some_slow_piece_of_code")
   end
 
   it "stores metrics messages" do
@@ -22,9 +22,9 @@ describe Profit::Server do
                   end_file: "/foo/bar/biz.rb" }.to_json)
     server_thread.join(0.1)
 
-    list = redis.lrange("some_slow_piece_of_code", 0, -1)
+    list = redis.lrange("profit:metric:some_slow_piece_of_code", 0, -1)
     expect(list.count).to eq 1
-    expect(redis.llen("some_slow_piece_of_code")).to eq 1
+    expect(redis.llen("profit:metric:some_slow_piece_of_code")).to eq 1
 
     metric = JSON.parse(list[0])
     expect(metric["total_time"]).to eq 12.012

@@ -8,11 +8,11 @@ describe Profit::Client do
   let!(:server_thread) { TestServer.server_thread }
 
   after do
-    redis.del("some_foo_measurement")
+    redis.del("profit:metric:some_foo_measurement")
   end
 
   it "sends the amount of time it takes to run some code" do
-    metrics = redis.lrange("some_foo_measurement", 0, -1)
+    metrics = redis.lrange("profit:metric:some_foo_measurement", 0, -1)
     expect(metrics).to be_empty
 
     client.start("some_foo_measurement")
@@ -21,7 +21,7 @@ describe Profit::Client do
 
     server_thread.join(0.1)
 
-    metrics = redis.lrange("some_foo_measurement", 0, -1)
+    metrics = redis.lrange("profit:metric:some_foo_measurement", 0, -1)
     metric = JSON.parse(metrics.first)
     expect(metric['recorded_time']).to be_within(0.1).of(1)
   end
@@ -80,8 +80,8 @@ describe Profit::Client do
   describe "#stop" do
 
     after do
-      redis.del("m_1")
-      redis.del("m_2")
+      redis.del("profit:metric:m_1")
+      redis.del("profit:metric:m_2")
     end
 
     it "matches up with the start marker" do
@@ -101,8 +101,8 @@ describe Profit::Client do
 
       server_thread.join(0.1)
 
-      first_measurement_list = redis.lrange("m_1", 0, -1)
-      second_measurement_list = redis.lrange("m_2", 0, -1)
+      first_measurement_list = redis.lrange("profit:metric:m_1", 0, -1)
+      second_measurement_list = redis.lrange("profit:metric:m_2", 0, -1)
 
       expect(first_measurement_list.count).to eq 2
       expect(second_measurement_list.count).to eq 1
@@ -121,7 +121,7 @@ describe Profit::Client do
 
       server_thread.join(0.1)
 
-      measurements = redis.lrange("m_1", 0, -1)
+      measurements = redis.lrange("profit:metric:m_1", 0, -1)
       metric = JSON.parse(measurements[0])
       expect(metric['stop_file']).to eq stop_file
       expect(metric['stop_line']).to eq stop_line

@@ -18,7 +18,6 @@ RSpec.configure do |config|
   end
 
   config.after(:suite) do
-    TestServer.server.shutdown!
     TestServer.server_thread.join(1)
   end
 end

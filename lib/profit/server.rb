@@ -8,10 +8,6 @@ module Profit
       @ctx = ZMQ::Context.new
     end
 
-    def shutdown!
-      @shutdown = true
-    end
-
     def setup_trap_int
       trap :INT do
         puts "\nSIGINT received, quitting!"
@@ -20,7 +16,6 @@ module Profit
     end
 
     def run
-      @run = true
       EM.run do
 
         @redis_pool = EM::Pool.new
@@ -32,19 +27,6 @@ module Profit
 
         # gives us a graceful exit
         setup_trap_int
-
-        if @shutdown
-          EM.next_tick do # change to add_timer(1) for more delay
-            @run = false
-          end
-        end
-
-        # allows us to break out of the loop
-        EM.add_periodic_timer do
-          unless @run
-            EM.stop unless @run
-          end
-        end
 
         # ensures we can continue to run other specs
         EM.add_shutdown_hook { puts("destroy"); @ctx.destroy }

@@ -8,11 +8,10 @@ module Profit
     attr_reader :text
 
     def initialize(json, conn)
-      @json, @conn = json, conn
+      @json, @conn = (json || "{}"), conn
     end
 
     def run
-      return succeed("Starting") if @json.empty?
       message_hash = JSON.parse(@json)
       metric_type = message_hash.delete("metric_type")
       key = "profit:metric:#{metric_type}"

@@ -29,16 +29,13 @@ module Profit
         setup_trap_int
 
         # ensures we can continue to run other specs
-        EM.add_shutdown_hook { puts("destroy"); @ctx.destroy }
+        EM.add_shutdown_hook { @ctx.destroy }
 
         # this is the entry to message handling
         EM.add_periodic_timer do
           @redis_pool.perform do |conn|
             message_handler = MessageHandler.new @puller.recv, conn
 
-            message_handler.callback do |response|
-              puts response.inspect
-            end
             message_handler.run
             message_handler
           end

@@ -1,6 +1,6 @@
 require 'zmq'
 require 'eventmachine'
-require 'redis'
+require 'em-hiredis'
 require 'json'
 
 module Profit

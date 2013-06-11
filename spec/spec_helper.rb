@@ -1,4 +1,5 @@
 require './lib/profit'
+require 'redis'
 
 class TestServer
 

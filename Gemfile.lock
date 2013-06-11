@@ -2,9 +2,9 @@ PATH
   remote: .
   specs:
     profit (0.1.1)
+      em-hiredis
       eventmachine
       rbczmq
-      redis
 
 GEM
   remote: https://rubygems.org/
@@ -17,7 +17,10 @@ GEM
     debugger-linecache (1.2.0)
     debugger-ruby_core_source (1.2.0)
     diff-lcs (1.2.4)
+    em-hiredis (0.2.1)
+      hiredis (~> 0.4.0)
     eventmachine (1.0.3)
+    hiredis (0.4.5)
     rake (10.0.4)
     rbczmq (1.6.2)
     redis (3.0.4)
@@ -37,4 +40,5 @@ DEPENDENCIES
   debugger
   profit!
   rake
+  redis
   rspec

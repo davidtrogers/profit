@@ -10,7 +10,12 @@ module Profit
       @options[:redis_port]    = options[:redis_port]    || 6379
       @options[:zmq_address]   = options[:zmq_address]   || "tcp://*:5556"
       @options[:pool_size]     = options[:pool_size]     || 10
+      @options[:log_path]      = options[:log_path]      || STDOUT
+      @options[:log_level]     = options[:log_level]     || :error
+
+      logger.level = log_level
       @ctx = ZMQ::Context.new
+      logger.info "Starting profit_server with options: #{@options}"
     end
 
     def run
@@ -35,8 +40,8 @@ module Profit
             metric_type  = message_hash.delete("metric_type")
 
             response     = conn.rpush "profit:metric:#{metric_type}", message_hash.to_json
-            response.callback { |resp| puts "callback: #{resp}"}
-            response.errback  { |resp| puts "errback: #{resp}"}
+            response.callback { |resp| logger.debug "callback: #{resp}"}
+            response.errback  { |resp| logger.error "error: #{resp}"}
             response
           end
         end
@@ -45,9 +50,24 @@ module Profit
 
     private
 
+    def logger
+      @logger ||= Logger.new(@options[:log_path])
+    end
+
+    def log_level
+      Logger.const_get(@options[:log_level].upcase)
+    end
+
     def setup_interrupt_handling
-      trap(:INT) { EM.stop }
-      EM.add_shutdown_hook { ctx.destroy }
+      trap(:INT) do
+        logger.debug "trap received, shutting down EM run loop."
+        EM.stop
+      end
+
+      EM.add_shutdown_hook do
+        logger.debug "destroying ZMQ context"
+        ctx.destroy
+      end
     end
 
     def spawn_redis_connections

@@ -13,42 +13,59 @@ module Profit
       @ctx = ZMQ::Context.new
     end
 
-    def setup_trap_int
-      trap :INT do
-        puts "\nSIGINT received, quitting!"
-        EM.stop
-      end
-
-      EM.add_shutdown_hook { @ctx.destroy }
-    end
-
     def run
       EM.run do
-        @redis_pool = EM::Pool.new
-        spawn = lambda do
-          @redis_pool.add EM::Hiredis.connect("redis://#{@options[:redis_address]}:#{@options[:redis_port]}/")
-        end
-        @redis_pool.on_error { |conn| spawn[] }
-        @options[:pool_size].times { spawn[] }
 
-        @puller = @ctx.bind(:PULL, @options[:zmq_address])
+        # startup the EM::Hiredis connections
+        spawn_redis_connections
 
         # gives us a graceful exit
-        setup_trap_int
+        setup_interrupt_handling
 
         # this is the entry to message handling
         EM.add_periodic_timer do
-          message = @puller.recv || ""
-          @redis_pool.perform do |conn|
+
+          # blocking ZMQ socket
+          message = puller.recv || ""
+
+          # take a worker from the pool to save the metric to Redis
+          redis_pool.perform do |conn|
+
             message_hash = JSON.parse(message)
             metric_type  = message_hash.delete("metric_type")
-            response = conn.rpush "profit:metric:#{metric_type}", message_hash.to_json
+
+            response     = conn.rpush "profit:metric:#{metric_type}", message_hash.to_json
             response.callback { |resp| puts "callback: #{resp}"}
             response.errback  { |resp| puts "errback: #{resp}"}
             response
           end
         end
       end
+    end
+
+    private
+
+    def setup_interrupt_handling
+      trap(:INT) { EM.stop }
+      EM.add_shutdown_hook { ctx.destroy }
+    end
+
+    def spawn_redis_connections
+      spawn = lambda { redis_pool.add(EM::Hiredis.connect(redis_address)) }
+      redis_pool.on_error { |conn| spawn[] }
+      @options[:pool_size].times { spawn[] }
+    end
+
+    def puller
+      @puller ||= ctx.bind(:PULL, @options[:zmq_address])
+    end
+
+    def redis_pool
+      @redis_pool ||= EM::Pool.new
+    end
+
+    def redis_address
+      "redis://#{@options[:redis_address]}:#{@options[:redis_port]}/"
     end
   end
 end

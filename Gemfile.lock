@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    profit (0.1.1)
+    profit (0.1.2)
       em-hiredis
       eventmachine
       rbczmq

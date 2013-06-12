@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Profit::Client do
 
   let!(:redis)         { Redis.new(host: "127.0.0.1", port: 6379) }
-  let!(:client)        { Profit::Client.new(server.ctx) }
+  let!(:client)        { Profit::Client.new(ctx: server.ctx) }
   let!(:server)        { TestServer.server }
   let!(:server_thread) { TestServer.server_thread }
 

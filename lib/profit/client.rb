@@ -8,8 +8,9 @@ module Profit
 
     attr_accessor :ctx, :socket, :pending
 
-    def initialize(ctx = nil)
-      @ctx = ctx || ZMQ::Context.new
+    def initialize(options = {})
+      @ctx            = options[:ctx]            || ZMQ::Context.new
+      @server_address = options[:server_address] || "tcp://127.0.0.1:5556"
       @pending = {}
     end
 
@@ -42,7 +43,7 @@ module Profit
     end
 
     def socket
-      Thread.current[:socket] ||= @ctx.connect(:PUSH, "tcp://127.0.0.1:5556")
+      Thread.current[:socket] ||= @ctx.connect(:PUSH, @server_address)
     end
 
     private

@@ -7,7 +7,7 @@ Profit is a client/server pair that lets you record timing data for your code.
 Here's the client
 ``` ruby
 # my_ruby_app.rb
-client = Profit::Client.new
+client = Profit.client
 client.start("some_suspect_code")
 some_thing_is_not_right
 client.stop("some_suspect_code")

@@ -60,7 +60,8 @@ describe Profit::Client do
       client.start("some_foo_measurement")
       now = Time.now
 
-      pending_metric = client.pending["some_foo_measurement"]
+      key = client.pending.keys.grep(/some_foo_measurement/).first
+      pending_metric = client.pending[key]
       expect(pending_metric[:start_time].to_i).to be_within(1).of(now.to_i)
     end
 
@@ -71,7 +72,8 @@ describe Profit::Client do
       start_line = __LINE__
       start_file = __FILE__
 
-      pending_metric = client.pending["some_foo_measurement"]
+      key = client.pending.keys.grep(/some_foo_measurement/).first
+      pending_metric = client.pending[key]
       expect(pending_metric[:start_file]).to eq start_file
       expect(pending_metric[:start_line]).to eq start_line
     end

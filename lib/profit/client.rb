@@ -6,7 +6,7 @@ module Profit
 
   class Client
 
-    attr_accessor :ctx, :socket, :pending
+    attr_accessor :ctx, :pending
 
     def initialize(options = {})
       @ctx            = options[:ctx]            || ZMQ::Context.new

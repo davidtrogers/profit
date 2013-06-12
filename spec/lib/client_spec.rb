@@ -26,6 +26,22 @@ describe Profit::Client do
     expect(metric['recorded_time']).to be_within(0.1).of(1)
   end
 
+  it "sends the unix time of when the measurement started" do
+    metrics = redis.lrange("profit:metric:some_foo_measurement", 0, -1)
+    expect(metrics).to be_empty
+
+    client.start("some_foo_measurement")
+    now = Time.now
+    sleep 1
+    client.stop("some_foo_measurement")
+
+    server_thread.join(0.1)
+
+    metrics = redis.lrange("profit:metric:some_foo_measurement", 0, -1)
+    metric = JSON.parse(metrics.first)
+    expect(metric['start_time']).to be_within(1).of(now.to_i)
+  end
+
   describe "#ctx" do
 
     it "is a ZMQ context" do

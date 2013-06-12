@@ -28,14 +28,16 @@ module Profit
     end
 
     def stop(metric_type)
-      now = Time.now
-      metric = @pending.delete key_for(metric_type)
-      recorded_time = Time.now - metric[:start_time]
-      stop_file = caller[0][/(.+):(.+):/,1]
-      stop_line = caller[0][/(.+):(.+):/,2].to_i - 1
+      now           = Time.now
+      metric        = @pending.delete key_for(metric_type)
+      recorded_time = now - metric[:start_time]
+      start_time    = metric[:start_time].to_i
+      stop_file     = caller[0][/(.+):(.+):/,1]
+      stop_line     = caller[0][/(.+):(.+):/,2].to_i - 1
 
       socket.send({ metric_type: metric_type,
                     recorded_time: recorded_time,
+                    start_time: start_time,
                     start_file: metric[:start_file],
                     start_line: metric[:start_line],
                     stop_file: stop_file,

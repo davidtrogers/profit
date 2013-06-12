@@ -42,6 +42,13 @@ describe Profit::Client do
     expect(metric['start_time']).to be_within(1).of(now.to_i)
   end
 
+  describe "Profit.client" do
+
+    it "creates a single client instance" do
+      expect(Profit.client(ctx: server.ctx)).to be_a(Profit::Client)
+    end
+  end
+
   describe "#ctx" do
 
     it "is a ZMQ context" do

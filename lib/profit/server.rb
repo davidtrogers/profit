@@ -36,13 +36,17 @@ module Profit
           # take a worker from the pool to save the metric to Redis
           redis_pool.perform do |conn|
 
-            message_hash = JSON.parse(message)
-            metric_type  = message_hash.delete("metric_type")
+            message_hash     = JSON.parse(message)
+            metric_type      = message_hash.delete("metric_type")
+            metric_key       = "profit:metric:#{metric_type}"
+            add_key_response = conn.sadd("profit:keys", metric_key)
+            add_key_response.callback { |resp| logger.debug "adding key callback: #{resp}"}
+            add_key_response.errback  { |resp| logger.error "adding key error: #{resp}"}
 
-            response     = conn.rpush "profit:metric:#{metric_type}", message_hash.to_json
-            response.callback { |resp| logger.debug "callback: #{resp}"}
-            response.errback  { |resp| logger.error "error: #{resp}"}
-            response
+            push_metric_response = conn.rpush metric_key, message_hash.to_json
+            push_metric_response.callback { |resp| logger.debug "callback: #{resp}"}
+            push_metric_response.errback  { |resp| logger.error "error: #{resp}"}
+            push_metric_response
           end
         end
       end

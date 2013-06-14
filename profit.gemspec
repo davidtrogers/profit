@@ -18,9 +18,12 @@ Gem::Specification.new do |s|
   s.add_dependency "eventmachine"
   s.add_dependency "rbczmq"
   s.add_dependency "em-hiredis"
+  s.add_dependency "sinatra"
 
   s.add_development_dependency "debugger"
   s.add_development_dependency "redis"
   s.add_development_dependency "rspec"
   s.add_development_dependency "rake"
+  s.add_development_dependency "rack-test"
+  s.add_development_dependency "capybara"
 end

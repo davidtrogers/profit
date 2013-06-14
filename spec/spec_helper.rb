@@ -1,5 +1,10 @@
 require './lib/profit'
+require './app/chart_app'
 require 'redis'
+require 'capybara'
+require 'capybara/dsl'
+
+set :environment, :test
 
 class TestServer
 
@@ -12,6 +17,8 @@ class TestServer
   end
 end
 
+Capybara.app = ChartApp
+
 RSpec.configure do |config|
 
   config.before(:suite) do
@@ -21,4 +28,13 @@ RSpec.configure do |config|
   config.after(:suite) do
     TestServer.server_thread.join(1)
   end
+
+  config.include Rack::Test::Methods
+  config.include Capybara::DSL
 end
+
+# Capybara.configure do |config|
+#   # config.match = :prefer_exact
+#   # config.ignore_hidden_elements = false
+# end
+

@@ -93,12 +93,10 @@ describe Profit::Client do
 
       client.start("some_foo_measurement")
       start_line = __LINE__
-      start_file = __FILE__
 
       key = client.pending.keys.grep(/some_foo_measurement/).first
       pending_metric = client.pending[key]
-      expect(pending_metric[:start_file]).to eq start_file
-      expect(pending_metric[:start_line]).to eq start_line
+      expect(pending_metric[:start_line]).to match(%r{#{__FILE__}:#{start_line - 1}})
     end
   end
 
@@ -140,7 +138,6 @@ describe Profit::Client do
     it "records where the execution stops" do
       client.start("m_1")
       sleep 0.1
-      stop_file = __FILE__
       stop_line = __LINE__
       client.stop("m_1")
 
@@ -148,8 +145,7 @@ describe Profit::Client do
 
       measurements = redis.lrange("profit:metric:m_1", 0, -1)
       metric = JSON.parse(measurements[0])
-      expect(metric['stop_file']).to eq stop_file
-      expect(metric['stop_line']).to eq stop_line
+      expect(metric['stop_line']).to match(%r{#{__FILE__}:#{stop_line + 1}})
     end
   end
 end

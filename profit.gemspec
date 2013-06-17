@@ -6,6 +6,7 @@ Gem::Specification.new do |s|
   s.name        = "profit"
   s.version     = Profit::VERSION
   s.executables << 'profit_server'
+  s.executables << 'profit_app'
   s.authors     = ["Dave Rogers"]
   s.email       = ["david.t.rogers@gmail.com"]
   s.homepage    = "https://github.com/davidtrogers/profit"

@@ -1,1 +1,5 @@
 #!/usr/bin/env ruby
+
+require 'profit/app/chart_app'
+
+ChartApp.run!

@@ -2,4 +2,23 @@
 
 require 'profit/app/chart_app'
 
+require 'optparse'
+
+options = {}
+OptionParser.new { |opts|
+  opts.banner = "Usage: profit_app [options]"
+
+  opts.on("-r", "--redis-address [STRING]", String,
+          "Redis Address (default: 127.0.0.1:6379)") do |ra|
+    options[:redis_host] = ra.split(":").first
+    options[:redis_port] = ra.split(":").last.to_i
+  end
+
+  opts.on("-p", "--local-port [DECIMAL]", OptionParser::DecimalInteger,
+          "Local port for Sinatra App (default: 4567)") do |port|
+    options[:sinatra_port] = port
+  end
+}.parse!
+
+ChartApp.options = options
 ChartApp.run!

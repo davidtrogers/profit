@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    profit (0.1.5)
+    profit (0.1.6)
       active_support
       em-hiredis
       eventmachine

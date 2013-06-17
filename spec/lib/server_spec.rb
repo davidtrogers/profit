@@ -16,7 +16,7 @@ describe Profit::Server do
 
     pusher.send({ recorded_time: (now = Time.now),
                   total_time: 12.012,
-                  metric_type: "some_slow_piece_of_code",
+                  metric_key: "some_slow_piece_of_code",
                   start_line: 1,
                   end_line: 42,
                   start_file: "/foo/bar/baz.rb",
@@ -41,7 +41,7 @@ describe Profit::Server do
 
     pusher.send({ recorded_time: (now = Time.now),
                   total_time: 12.012,
-                  metric_type: "some_slow_piece_of_code",
+                  metric_key: "some_slow_piece_of_code",
                   start_line: 1,
                   end_line: 42,
                   start_file: "/foo/bar/baz.rb",
@@ -49,7 +49,7 @@ describe Profit::Server do
 
     pusher.send({ recorded_time: (now = Time.now),
                   total_time: 14.316,
-                  metric_type: "some_slow_piece_of_code",
+                  metric_key: "some_slow_piece_of_code",
                   start_line: 1,
                   end_line: 42,
                   start_file: "/foo/bar/baz.rb",
@@ -57,7 +57,7 @@ describe Profit::Server do
 
     pusher.send({ recorded_time: (now = Time.now),
                   total_time: 1.455,
-                  metric_type: "other_piece_of_code",
+                  metric_key: "other_piece_of_code",
                   start_line: 12,
                   end_line: 23,
                   start_file: "/foo/bar/baz.rb",

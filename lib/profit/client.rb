@@ -14,25 +14,22 @@ module Profit
       @pending        = {}
     end
 
-    def start(metric_type)
-      now = Time.now
-      start_line = caller[0]
+    def start(metric_key)
+      pending_key = pending_key_for(Key.new(metric_key).to_s)
+      metric      = Metric.new(metric_key: metric_key,
+                               start_line: caller[0],
+                               start_time: Time.now)
 
-      pending[key_for(metric_type)] = { start_line: start_line, start_time: now }
+      pending[pending_key] = metric
     end
 
-    def stop(metric_type)
-      now           = Time.now
-      metric        = pending.delete key_for(metric_type)
-      recorded_time = now - metric[:start_time]
-      start_time    = metric[:start_time].to_i
-      stop_line     = caller[0]
+    def stop(metric_key)
+      pending_key          = pending_key_for(Key.new(metric_key).to_s)
+      metric               = pending.delete pending_key
+      metric.recorded_time = Time.now - metric.start_time
+      metric.stop_line     = caller[0]
 
-      socket.send({ metric_type: metric_type,
-                    recorded_time: recorded_time,
-                    start_time: start_time,
-                    start_line: metric[:start_line],
-                    stop_line: stop_line }.to_json)
+      socket.send(metric.to_json)
     end
 
     def socket
@@ -41,7 +38,7 @@ module Profit
 
     private
 
-    def key_for(metric_type)
+    def pending_key_for(metric_type)
       "#{metric_type}:#{Thread.current.object_id}"
     end
   end

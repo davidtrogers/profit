@@ -37,8 +37,7 @@ module Profit
           redis_pool.perform do |conn|
 
             message_hash     = JSON.parse(message)
-            metric_type      = message_hash.delete("metric_type")
-            metric_key       = "profit:metric:#{metric_type}"
+            metric_key       = ["profit", "metric", message_hash.delete("metric_key")].join(":")
             add_key_response = conn.sadd("profit:keys", metric_key)
             add_key_response.callback { |resp| logger.debug "adding key callback: #{resp}"}
             add_key_response.errback  { |resp| logger.error "adding key error: #{resp}"}

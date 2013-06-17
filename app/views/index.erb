@@ -23,6 +23,9 @@
     <![endif]-->
   </head>
   <body>
+    <script type="text/javascript">
+      window.data = <%= data.to_json %>;
+    </script>
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
@@ -36,15 +39,19 @@
       </div>
     </div>
     <div class="tabbable tabs-left">
-      <ul class="nav nav-tabs">
-        <li class="active"><a href="#tab1" data-toggle="tab">Section 1</a></li>
-        <li><a href="#tab2" data-toggle="tab">Section 2</a></li>
+      <ul id="key_links" class="nav nav-tabs">
+        <% data.keys.each_with_index do |key, index| %>
+          <% first = index == 0 %>
+          <li class="<%= 'active' if first %>"><a href="#tab_<%= key %>" id="<%= key %>" data-toggle="tab"><%= key %></a></li>
+        <% end %>
       </ul>
       <div class="tab-content">
-
-        <div class="tab-pane active" id="tab1">
-          <canvas id="myChart" width="1200" height="400"></canvas>
-        </div>
+        <% data.keys.each_with_index do |key, index| %>
+          <% first = index == 0 %>
+          <div class="tab-pane <%= 'active' if first %>" id="tab_<%= key %>">
+            <canvas id="chart_<%= key %>" width="1200" height="400"></canvas>
+          </div>
+        <% end %>
       </div>
     </div>
 

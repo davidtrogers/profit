@@ -9,6 +9,7 @@ describe Profit::Client do
 
   after do
     redis.del("profit:metric:some_foo_measurement")
+    redis.del("profit:keys")
   end
 
   it "sends the amount of time it takes to run some code" do
@@ -85,7 +86,7 @@ describe Profit::Client do
 
       key = client.pending.keys.grep(/some_foo_measurement/).first
       pending_metric = client.pending[key]
-      expect(pending_metric[:start_time].to_i).to be_within(1).of(now.to_i)
+      expect(pending_metric.start_time.to_i).to be_within(1).of(now.to_i)
     end
 
     it "records where the execution starts" do
@@ -96,7 +97,7 @@ describe Profit::Client do
 
       key = client.pending.keys.grep(/some_foo_measurement/).first
       pending_metric = client.pending[key]
-      expect(pending_metric[:start_line]).to match(%r{#{__FILE__}:#{start_line - 1}})
+      expect(pending_metric.start_line).to match(%r{#{__FILE__}:#{start_line - 1}})
     end
   end
 

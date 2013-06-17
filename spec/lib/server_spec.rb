@@ -69,4 +69,26 @@ describe Profit::Server do
     expect(set.to_a).to eq ["profit:metric:other_piece_of_code",
                             "profit:metric:some_slow_piece_of_code"]
   end
+
+  it "limits messages to 100" do
+    pusher = server.ctx.connect(:PUSH, "tcp://127.0.0.1:5556")
+
+    102.times do |i|
+      pusher.send({ recorded_time: (now = Time.now),
+                    total_time: i,
+                    metric_key: "some_slow_piece_of_code",
+                    start_line: 1,
+                    end_line: 42,
+                    start_file: "/foo/bar/baz.rb",
+                    end_file: "/foo/bar/biz.rb" }.to_json)
+    end
+
+    server_thread.join(1)
+
+    expect(redis.llen("profit:metric:some_slow_piece_of_code")).to eq 100
+
+    list = redis.lrange("profit:metric:some_slow_piece_of_code", 0, -1)
+    expect(JSON.parse(list.last)['total_time']).to eq 2
+    expect(JSON.parse(list.first)['total_time']).to eq 101
+  end
 end

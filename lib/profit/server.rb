@@ -4,6 +4,8 @@ module Profit
 
     attr_reader :ctx
 
+    METRIC_LIMIT_PER_KEY = 100
+
     def initialize(options = {})
       @options = {}
       @options[:redis_address] = options[:redis_address] || "127.0.0.1"
@@ -38,14 +40,19 @@ module Profit
 
             message_hash     = JSON.parse(message)
             metric_key       = ["profit", "metric", message_hash.delete("metric_key")].join(":")
-            add_key_response = conn.sadd("profit:keys", metric_key)
-            add_key_response.callback { |resp| logger.debug "adding key callback: #{resp}"}
-            add_key_response.errback  { |resp| logger.error "adding key error: #{resp}"}
 
-            push_metric_response = conn.rpush metric_key, message_hash.to_json
-            push_metric_response.callback { |resp| logger.debug "callback: #{resp}"}
-            push_metric_response.errback  { |resp| logger.error "error: #{resp}"}
-            push_metric_response
+            add_key_response = conn.sadd("profit:keys", metric_key)
+            add_key_response.callback { |resp| logger.debug "adding metric key callback: #{resp}" }
+            add_key_response.errback  { |resp| logger.error "adding metric key error: #{resp}"}
+
+            push_metric_response = conn.lpush metric_key, message_hash.to_json
+            push_metric_response.callback { |resp| logger.debug "push metric callback: #{resp}" }
+            push_metric_response.errback  { |resp| logger.error "push metric error: #{resp}"}
+
+            trim_list_response = conn.ltrim(metric_key, 0, METRIC_LIMIT_PER_KEY - 1)
+            trim_list_response.callback { |resp| logger.debug "trim list callback: #{resp}" }
+            trim_list_response.errback  { |resp| logger.error "trim list error: #{resp}"}
+            trim_list_response
           end
         end
       end

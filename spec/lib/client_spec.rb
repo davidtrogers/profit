@@ -131,8 +131,8 @@ describe Profit::Client do
       expect(first_measurement_list.count).to eq 2
       expect(second_measurement_list.count).to eq 1
 
-      expect(JSON.parse(first_measurement_list[0])['recorded_time']).to be_within(0.1).of(1.3)
-      expect(JSON.parse(first_measurement_list[1])['recorded_time']).to be_within(0.1).of(0.2)
+      expect(JSON.parse(first_measurement_list[0])['recorded_time']).to be_within(0.1).of(0.2)
+      expect(JSON.parse(first_measurement_list[1])['recorded_time']).to be_within(0.1).of(1.3)
       expect(JSON.parse(second_measurement_list[0])['recorded_time']).to be_within(0.1).of(1.2)
     end
 

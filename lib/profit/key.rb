@@ -22,7 +22,7 @@ module Profit
     end
 
     def metrics
-      self.class.redis.lrange(full, 0, -1).map {|key_data| Metric.new(key_data)}
+      self.class.redis.lrange(full, 0, -1).map {|key_data| Metric.new(key_data)}.reverse
     end
 
     def full

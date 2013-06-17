@@ -1,5 +1,5 @@
 require './lib/profit'
-require './app/chart_app'
+require './lib/profit/app/chart_app'
 require 'redis'
 require 'capybara'
 require 'capybara/dsl'

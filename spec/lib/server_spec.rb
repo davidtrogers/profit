@@ -66,8 +66,8 @@ describe Profit::Server do
 
     set = redis.smembers("profit:keys")
     expect(set.count).to eq 2
-    expect(set.to_a).to eq ["profit:metric:other_piece_of_code",
-                            "profit:metric:some_slow_piece_of_code"]
+    expect(set.to_a.sort).to eq ["profit:metric:other_piece_of_code",
+                                 "profit:metric:some_slow_piece_of_code"]
   end
 
   it "limits messages to 100" do

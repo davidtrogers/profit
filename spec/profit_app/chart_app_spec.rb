@@ -21,6 +21,10 @@ describe 'Chart App' do
     sleep 0.1
     client.stop("some_foo_metric")
 
+    Timeout.timeout(1) do
+      sleep(0.01) until redis.smembers("profit:keys").any?
+    end
+
     visit '/'
 
     expect(page).to have_link("some_foo_metric")

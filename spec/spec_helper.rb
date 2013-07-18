@@ -3,6 +3,8 @@ require './lib/profit/app/chart_app'
 require 'redis'
 require 'capybara'
 require 'capybara/dsl'
+require 'capybara/rspec'
+require 'capybara/webkit'
 
 set :environment, :test
 
@@ -18,6 +20,7 @@ class TestServer
 end
 
 Capybara.app = ChartApp
+Capybara.javascript_driver = :webkit
 
 RSpec.configure do |config|
 
